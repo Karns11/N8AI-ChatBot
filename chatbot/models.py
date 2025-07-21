@@ -42,6 +42,8 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     tokens_used = models.IntegerField(default=0)
     execution_time = models.FloatField(default=0.0)  # in seconds
+    chart_data = models.JSONField(blank=True, null=True)
+    show_chart = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['created_at']
