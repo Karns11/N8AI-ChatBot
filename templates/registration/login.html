@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - N8AI{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">
+                        Login
+                    </h3>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Login failed.</strong> Please check your username and password.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="id_username" 
+                                   name="username" 
+                                   required 
+                                   autofocus>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="id_password" 
+                                   name="password" 
+                                   required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Login
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <p class="text-white" style="color: #fff !important;">
+                    Don't have an account? 
+                    <a href="{% url 'admin:index' %}">Contact an administrator</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

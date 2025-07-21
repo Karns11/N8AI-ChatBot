@@ -1,0 +1,515 @@
+# Data Warehouse Schema Configuration
+# This file defines the structure of your data warehouse tables
+# Update this file to reflect your actual database schema
+
+tables:
+  - name: warehouse.dim_date
+    description: >
+      The date dimension table used for time-based filtering, grouping, and reporting.
+      Includes calendar, fiscal, and derived fields to simplify date-related analysis.
+
+    columns:
+      - name: as_of_date
+        type: date
+        description: "Full calendar date. This is the main date value for filtering."
+      - name: date_id
+        type: integer
+        description: "Numeric unique identifier for the date, formatted as YYYYMMDD."
+      - name: day
+        type: integer
+        description: "Day of the month (1 to 31)."
+      - name: day_suffix
+        type: text
+        description: "Day suffix for display purposes, such as 'st', 'nd', 'rd', or 'th'."
+      - name: day_name
+        type: text
+        description: "Full name of the day, for example 'Monday' or 'Tuesday'."
+      - name: weekday_ind
+        type: boolean
+        description: "Indicator showing if the date is a weekday. 1 = Yes, 0 = No."
+      - name: weekday_num
+        type: integer
+        description: "Numeric day of the week, where 1 = Monday and 7 = Sunday."
+      - name: week_of_month
+        type: integer
+        description: "Week number within the month."
+      - name: week_of_year
+        type: integer
+        description: "Week number within the year, starting from 1."
+      - name: iso_week
+        type: integer
+        description: "ISO 8601 week number, standardized week numbering."
+      - name: month
+        type: integer
+        description: "Month number (1 = January, 12 = December)."
+      - name: month_name
+        type: text
+        description: "Full name of the month, for example 'January'."
+      - name: month_abbrev
+        type: text
+        description: "Three-letter abbreviation of the month, such as 'Jan' or 'Feb'."
+      - name: quarter
+        type: integer
+        description: "Quarter of the year (1 to 4)."
+      - name: quarter_name
+        type: text
+        description: "Text label for the quarter, such as 'Q1' or 'Q2'."
+      - name: year
+        type: integer
+        description: "Calendar year in 4-digit format."
+      - name: iso_year
+        type: integer
+        description: "Year based on ISO week date standard."
+      - name: year_month
+        type: text
+        description: "Combined year and month in YYYY-MM format."
+      - name: year_quarter
+        type: text
+        description: "Combined year and quarter, for example '2024-Q1'."
+      - name: first_day_of_month
+        type: date
+        description: "Date of the first day of the month."
+      - name: last_day_of_month
+        type: date
+        description: "Date of the last day of the month."
+      - name: first_day_of_qtr
+        type: date
+        description: "Date of the first day of the quarter."
+      - name: last_day_of_qtr
+        type: date
+        description: "Date of the last day of the quarter."
+      - name: first_day_of_year
+        type: date
+        description: "Date of the first day of the year."
+      - name: last_day_of_year
+        type: date
+        description: "Date of the last day of the year."
+      - name: day_of_year
+        type: integer
+        description: "The day number within the year, ranging from 1 to 366."
+      - name: is_holiday
+        type: boolean
+        description: "Indicator showing if the date is a recognized holiday. 1 = Yes, 0 = No."
+      - name: holiday_name
+        type: text
+        description: "Name of the holiday, if applicable."
+      - name: fiscal_month
+        type: integer
+        description: "Month number according to the organization's fiscal calendar."
+      - name: fiscal_quarter
+        type: integer
+        description: "Quarter according to the organization's fiscal calendar."
+      - name: fiscal_year
+        type: integer
+        description: "Year according to the organization's fiscal calendar."
+      - name: is_weekend
+        type: boolean
+        description: "Indicator showing if the date falls on a weekend. 1 = Yes, 0 = No."
+      - name: is_last_day_of_month
+        type: boolean
+        description: "Indicator showing if the date is the last day of the month."
+      - name: is_first_day_of_month
+        type: boolean
+        description: "Indicator showing if the date is the first day of the month."
+      - name: prev_day
+        type: date
+        description: "Date value for the previous day."
+      - name: next_day
+        type: date
+        description: "Date value for the next day."
+      - name: prev_month
+        type: text
+        description: "Same day in the previous month, or adjusted if day does not exist."
+      - name: next_month
+        type: text
+        description: "Same day in the next month, or adjusted if day does not exist."
+      - name: prev_year
+        type: integer
+        description: "Same day in the previous year, accounting for leap years."
+      - name: next_year
+        type: integer
+        description: "Same day in the next year, accounting for leap years."
+      - name: days_in_month
+        type: integer
+        description: "Total number of days in the current month."
+      - name: leap_year
+        type: boolean
+        description: "Indicator showing if the year is a leap year. 1 = Yes, 0 = No."
+      - name: iso_day_of_week
+        type: integer
+        description: "ISO standard day number, where 1 = Monday and 7 = Sunday."
+      - name: unix_timestamp
+        type: bigint
+        description: "Unix timestamp representing the start of the date in seconds."
+      - name: julian_date
+        type: double precision
+        description: "Julian date number used in scientific and astronomical calculations."
+      - name: created_at
+        type: timestamp without time zone
+        description: "Timestamp for when this record was created in the table."
+
+  - name: warehouse.dim_player
+    description: >
+      Player dimension table containing biographical, physical, and baseball-related information
+      for players appearing in MLB data. Used to enrich fact tables with player details.
+
+    columns:
+      - name: player_sk
+        type: integer
+        description: "Surrogate key for the player, used for joining to fact tables."
+      - name: source_id
+        type: integer
+        description: "Source system identifier for the player, often MLB ID."
+      - name: full_name
+        type: text
+        description: "Full name of the player."
+      - name: first_name
+        type: text
+        description: "First name of the player."
+      - name: last_name
+        type: text
+        description: "Last name of the player."
+      - name: player_link
+        type: text
+        description: "URL link to the player's official MLB page or profile."
+      - name: primary_number
+        type: text
+        description: "Player's jersey number."
+      - name: birth_date
+        type: text
+        description: "Player's date of birth."
+      - name: birth_city
+        type: text
+        description: "City where the player was born."
+      - name: birth_state_province
+        type: text
+        description: "State or province where the player was born."
+      - name: birth_country
+        type: text
+        description: "Country where the player was born."
+      - name: height
+        type: text
+        description: "Player's height, typically in inches or centimeters."
+      - name: weight
+        type: text
+        description: "Player's weight, typically in pounds or kilograms."
+      - name: is_active
+        type: text
+        description: "Indicates if the player is currently active. 1 = Yes, 0 = No."
+      - name: draft_year
+        type: integer
+        description: "Year the player was drafted into MLB."
+      - name: mlb_debut_date
+        type: text
+        description: "Date of the player's Major League debut."
+      - name: strike_zone_top
+        type: numeric
+        description: "Top boundary of the player's strike zone, usually in feet."
+      - name: strike_zone_bottom
+        type: numeric
+        description: "Bottom boundary of the player's strike zone, usually in feet."
+      - name: primary_position_name
+        type: text
+        description: "Full name of the player's primary position, e.g., 'Shortstop'."
+      - name: primary_position_type
+        type: text
+        description: "General type of position, such as 'Infield' or 'Outfield'."
+      - name: primary_position_abbreviation
+        type: text
+        description: "Standard abbreviation for the position, such as 'SS' for shortstop."
+      - name: bat_side_code
+        type: text
+        description: "Player's batting side. 'L' = Left, 'R' = Right, 'S' = Switch hitter."
+      - name: pitch_hand_code
+        type: text
+        description: "Player's throwing hand. 'L' = Left, 'R' = Right."
+      - name: team
+        type: text
+        description: "Current MLB team of the player."
+      - name: effective_date
+        type: date
+        description: "Date when this player record became effective."
+      - name: expire_date
+        type: date
+        description: "Date when this player record expired or was replaced."
+      - name: current_flag
+        type: character
+        description: "Indicates if this record is the current version. 1 = Yes, 0 = No."
+
+  - name: warehouse.dim_team
+    description: >
+      Team dimension table containing team names, locations, league details, and franchise history.
+      Used to provide team-specific attributes for baseball reporting and analysis.
+
+    columns:
+      - name: team_sk
+        type: integer
+        description: "Surrogate key for the team, used for joining to fact tables."
+      - name: source_id
+        type: text
+        description: "Source system identifier for the team, typically from MLB systems."
+      - name: team_full_name
+        type: text
+        description: "Full name of the team, including city and nickname. Example: 'Los Angeles Angels'."
+      - name: team_link
+        type: text
+        description: "URL to the team's official MLB page or resource."
+      - name: team_code
+        type: text
+        description: "Team code used by MLB or other data providers, usually short alphanumeric."
+      - name: file_code
+        type: text
+        description: "Code used in file systems, URLs, or data feeds to identify the team."
+      - name: team_abbreviation
+        type: text
+        description: "Three-letter abbreviation for the team, for example 'LAA' for Los Angeles Angels."
+      - name: team_name
+        type: text
+        description: "Nickname or common name of the team, for example 'Angels'."
+      - name: location_name
+        type: text
+        description: "City or location where the team is based."
+      - name: first_year_of_play
+        type: text
+        description: "Year the team first played in the league."
+      - name: short_name
+        type: text
+        description: "Short version of the team name, often used for display or UI."
+      - name: franchise_name
+        type: text
+        description: "Full franchise name, which may differ from the current team name due to relocation or rebranding."
+      - name: club_name
+        type: text
+        description: "Club name or parent organization behind the team."
+      - name: is_active
+        type: text
+        description: "Indicator showing if the team is currently active in the league. 1 = Yes, 0 = No."
+      - name: venue_name
+        type: text
+        description: "Name of the team's home stadium or venue."
+      - name: league_name
+        type: text
+        description: "Name of the league the team belongs to, such as 'American League'. Also includes minor leagues."
+      - name: division_name
+        type: text
+        description: "Division within the league, for example 'AL West'."
+      - name: sport_name
+        type: text
+        description: "Sport associated with the team, typically 'Baseball'."
+      - name: effective_date
+        type: date
+        description: "Date when this team record became effective."
+      - name: expire_date
+        type: date
+        description: "Date when this record expired or was replaced."
+      - name: current_flag
+        type: character
+        description: "Indicates if this is the current active record for the team. Y = Yes, N = No."
+
+  - name: warehouse.fact_player_stats
+    description: >
+      Fact table containing player-level offensive statistics for MLB games and seasons.
+      Includes batting performance metrics, derived statistics, and season-level aggregations. THIS CONTAINS ONLY THE ACCUMULATIONS FOR THE MOST RECENT DATE IN THE DATA WAREHOUSE. NO HISTORY IN THIS TABLE.
+
+    columns:
+      - name: player_sk
+        type: integer
+        description: "Surrogate key referencing the player in dim_player."
+      - name: team_sk
+        type: integer
+        description: "Surrogate key referencing the team in dim_team."
+      - name: num_g
+        type: bigint
+        description: "Total games played by the player."
+      - name: pa
+        type: bigint
+        description: "Total plate appearances by the player."
+      - name: ab
+        type: bigint
+        description: "Total official at-bats by the player."
+      - name: num_hits
+        type: bigint
+        description: "Total hits by the player, including singles, doubles, triples, and home runs."
+      - name: num_singles
+        type: bigint
+        description: "Total singles hit by the player."
+      - name: num_doubles
+        type: bigint
+        description: "Total doubles hit by the player."
+      - name: num_triples
+        type: bigint
+        description: "Total triples hit by the player."
+      - name: num_hr
+        type: bigint
+        description: "Total home runs hit by the player."
+      - name: num_rbi
+        type: bigint
+        description: "Total runs batted in (RBIs) by the player."
+      - name: num_walks
+        type: bigint
+        description: "Total walks (bases on balls) drawn by the player."
+      - name: num_strikeouts
+        type: bigint
+        description: "Total strikeouts by the player."
+      - name: batting_avg
+        type: numeric
+        description: "Player's batting average (hits divided by at-bats)."
+      - name: obp
+        type: numeric
+        description: "On-base percentage for the player."
+      - name: slg
+        type: numeric
+        description: "Slugging percentage for the player."
+      - name: ops
+        type: numeric
+        description: "On-base plus slugging for the player."
+      - name: total_bases
+        type: bigint
+        description: "Total bases achieved by the player."
+      - name: num_gidp
+        type: bigint
+        description: "Number of grounded into double plays."
+      - name: num_hbp
+        type: bigint
+        description: "Number of times hit by pitch."
+      - name: num_sh
+        type: bigint
+        description: "Number of sacrifice hits."
+      - name: num_sf
+        type: bigint
+        description: "Number of sacrifice flies."
+      - name: num_ibb
+        type: bigint
+        description: "Number of intentional walks."
+      - name: season
+        type: numeric
+        description: "Season year."
+      - name: as_of_date
+        type: date
+        description: "Date of the stat accumulation."
+      - name: is_currently_qualified
+        type: smallint
+        description: "Indicates if the player is currently qualified for leaderboards."
+
+  - name: warehouse.fact_player_stats_history
+    description: >
+      Historical fact table containing player-level offensive statistics for MLB games and seasons.
+      Includes batting performance metrics, derived statistics, and season-level aggregations for all dates in the data warehouse.
+
+    columns:
+      - name: player_sk
+        type: integer
+        description: "Surrogate key referencing the player in dim_player."
+      - name: team_sk
+        type: integer
+        description: "Surrogate key referencing the team in dim_team."
+      - name: num_g
+        type: bigint
+        description: "Total games played by the player."
+      - name: pa
+        type: bigint
+        description: "Total plate appearances by the player."
+      - name: ab
+        type: bigint
+        description: "Total official at-bats by the player."
+      - name: num_hits
+        type: bigint
+        description: "Total hits by the player, including singles, doubles, triples, and home runs."
+      - name: num_singles
+        type: bigint
+        description: "Total singles hit by the player."
+      - name: num_doubles
+        type: bigint
+        description: "Total doubles hit by the player."
+      - name: num_triples
+        type: bigint
+        description: "Total triples hit by the player."
+      - name: num_hr
+        type: bigint
+        description: "Total home runs hit by the player."
+      - name: num_rbi
+        type: bigint
+        description: "Total runs batted in (RBIs) by the player."
+      - name: num_walks
+        type: bigint
+        description: "Total walks (bases on balls) drawn by the player."
+      - name: num_strikeouts
+        type: bigint
+        description: "Total strikeouts by the player."
+      - name: batting_avg
+        type: numeric
+        description: "Player's batting average (hits divided by at-bats)."
+      - name: obp
+        type: numeric
+        description: "On-base percentage for the player."
+      - name: slg
+        type: numeric
+        description: "Slugging percentage for the player."
+      - name: ops
+        type: numeric
+        description: "On-base plus slugging for the player."
+      - name: total_bases
+        type: bigint
+        description: "Total bases achieved by the player."
+      - name: num_gidp
+        type: bigint
+        description: "Number of grounded into double plays."
+      - name: num_hbp
+        type: bigint
+        description: "Number of times hit by pitch."
+      - name: num_sh
+        type: bigint
+        description: "Number of sacrifice hits."
+      - name: num_sf
+        type: bigint
+        description: "Number of sacrifice flies."
+      - name: num_ibb
+        type: bigint
+        description: "Number of intentional walks."
+      - name: season
+        type: numeric
+        description: "Season year."
+      - name: as_of_date
+        type: date
+        description: "Date of the stat accumulation."
+      - name: is_currently_qualified
+        type: smallint
+        description: "Indicates if the player is currently qualified for leaderboards."
+
+  - name: warehouse.fact_team_games
+    description: >
+      Fact table containing team-level game statistics for MLB seasons.
+      Includes games played and season-level aggregations for each team.
+
+    columns:
+      - name: team_sk
+        type: integer
+        description: "Surrogate key referencing the team in dim_team."
+      - name: season
+        type: numeric
+        description: "Season year."
+      - name: gp
+        type: bigint
+        description: "Games played by the team."
+      - name: as_of_date
+        type: date
+        description: "Date of the stat accumulation."
+
+  - name: warehouse.fact_team_games_history
+    description: >
+      Historical fact table containing team-level game statistics for MLB seasons.
+      Includes games played and season-level aggregations for each team for all dates in the data warehouse.
+
+    columns:
+      - name: team_sk
+        type: integer
+        description: "Surrogate key referencing the team in dim_team."
+      - name: season
+        type: numeric
+        description: "Season year."
+      - name: gp
+        type: bigint
+        description: "Games played by the team."
+      - name: as_of_date
+        type: date
+        description: "Date of the stat accumulation."

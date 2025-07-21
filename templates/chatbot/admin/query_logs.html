@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Query Logs{% endblock %}
+
+{% block content %}
+<style>
+    /* Make the query logs table background dark */
+    table, thead, tbody, tr, th, td {
+        background-color: var(--card-bg) !important;
+        color: var(--text-color) !important;
+    }
+    /* Optional: make header row a bit darker for contrast */
+    thead th {
+        background-color: #23272f !important;
+    }
+</style>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-list"></i> Query Logs</h1>
+                <div>
+                    <a href="{% url 'chatbot:admin_chat_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Chats
+                    </a>
+                    <a href="{% url 'chatbot:database_status' %}" class="btn btn-info">
+                        <i class="fas fa-database"></i> Database Status
+                    </a>
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if query_logs %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Query Logs ({{ page_obj.paginator.count }} total)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Chat</th>
+                                        <th>SQL Query</th>
+                                        <th>Status</th>
+                                        <th>Execution Time</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in query_logs %}
+                                    <tr>
+                                        <td>{{ log.id }}</td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ log.user.username }}</span>
+                                        </td>
+                                        <td>
+                                            {% if log.chat_session %}
+                                                <a href="{% url 'chatbot:admin_chat_detail' log.chat_session.id %}" class="text-decoration-none">
+                                                    {{ log.chat_session.title|truncatechars:20 }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <code class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ log.generated_sql }}">
+                                                {{ log.generated_sql|truncatechars:50 }}
+                                            </code>
+                                        </td>
+                                        <td>
+                                            {% if log.execution_success %}
+                                                <span class="badge bg-success">Success</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Failed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if log.execution_time %}
+                                                <span class="text-muted">{{ log.execution_time|floatformat:3 }}s</span>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ log.created_at|date:"M j, H:i" }}</td>
+                                        <td>
+                                            <a href="{% url 'chatbot:query_log_detail' log.id %}" 
+                                               class="btn btn-outline-primary btn-sm" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {% if is_paginated %}
+                <nav aria-label="Query logs pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No query logs found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

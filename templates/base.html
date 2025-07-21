@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}N8AI{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --light-color: #181a20;
+            --dark-color: #f8fafc;
+            --background-color: #181a20;
+            --foreground-color: #23272f;
+            --text-color: #e2e8f0;
+            --card-bg: #23272f;
+            --input-bg: #23272f;
+            --border-color: #2d323c;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            /* height: 100%; */
+            width: 100%;
+            background: var(--background-color);
+        }
+        body {
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: var(--foreground-color) !important;
+            color: var(--text-color) !important;
+            border-bottom: 2px solid #000 !important; /* much darker border for header */
+        }
+        .navbar, .navbar-brand, .navbar-nav .nav-link, .dropdown-menu {
+            background-color: var(--foreground-color) !important;
+            color: var(--text-color) !important;
+        }
+        .dropdown-menu {
+            background-color: var(--foreground-color);
+        }
+        .dropdown-item, .dropdown-item:active, .dropdown-item:focus {
+            color: var(--text-color) !important;
+            background-color: var(--foreground-color) !important;
+        }
+        .dropdown-divider {
+            border-color: var(--border-color);
+        }
+        .card, .admin-panel, .stats-card {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        .btn-outline-secondary, .btn-outline-warning, .btn-outline-danger {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        .btn-outline-secondary:hover, .btn-outline-warning:hover, .btn-outline-danger:hover {
+            background-color: var(--border-color);
+        }
+        .sidebar, .chat-sidebar {
+            background-color: var(--foreground-color);
+            border-right: 1px solid var(--border-color);
+        }
+        .chat-item {
+            background-color: var(--foreground-color);
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .chat-item:hover {
+            background-color: #23272f;
+        }
+        .chat-item.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .message {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        /* --- Chat Results Table Responsiveness --- */
+        .scrollable-table-wrapper {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            display: block;
+        }
+        .results-table {
+            width: 100% !important;
+            white-space: nowrap !important;
+            border-collapse: collapse;
+        }
+        .results-table th, .results-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .message-content, .message.assistant > .message-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            overflow-x: visible !important;
+        }
+        .message.user {
+            background-color: var(--primary-color);
+            color: #fff;
+            margin-left: auto;
+        }
+        .message.assistant {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+        .message.system {
+            background-color: var(--warning-color);
+            color: #fff;
+            text-align: center;
+            max-width: 100%;
+        }
+        .sql-code, .sql-display {
+            background-color: #23272f;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+        .results-table {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .results-table th {
+            background-color: var(--primary-color);
+            color: #fff;
+            font-weight: 600;
+        }
+        .results-table td {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .error-message {
+            background-color: var(--danger-color);
+            color: #fff;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+        .success-message {
+            background-color: var(--success-color);
+            color: #fff;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+        .form-control, .message-input {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        .form-control:focus, .message-input:focus {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-color: var(--primary-color);
+        }
+        .form-control:disabled, .message-input:disabled {
+            background-color: var(--input-bg) !important;
+            color: var(--text-color) !important;
+            opacity: 0.7;
+        }
+        .btn-close {
+            filter: invert(1);
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        ::selection {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        ::-moz-selection {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .message, .message-content, .message.user {
+            user-select: text !important;
+        }
+        * {
+            user-select: text !important;
+        }
+        /* Custom scrollbar for all elements */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: var(--background-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--background-color);
+        }
+        /* For Firefox */
+        html {
+            scrollbar-color: #888 var(--background-color);
+            scrollbar-width: thin;
+        }
+        .tilted-eight {
+            display: inline-block;
+            transform: rotate(10deg);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body style="min-height:0;">
+    <div id="page-wrapper" style="display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'chatbot:home' %}">
+                    N<span class="tilted-eight">8</span>AI
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'chatbot:chat_list' %}">
+                                <i class="bi bi-chat"></i> Chats
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'chatbot:new_chat' %}">
+                                <i class="bi bi-plus-circle"></i> New Chat
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Admin
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'chatbot:admin_chat_list' %}">All Chats</a></li>
+                                <li><a class="dropdown-item" href="{% url 'chatbot:query_logs' %}">Query Logs</a></li>
+                                <li><a class="dropdown-item" href="{% url 'chatbot:database_status' %}">Database Status</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'admin:index' %}">Django Admin</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <ul class="navbar-nav">
+                        {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <main style="flex: 1 0 auto;">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer style="flex-shrink: 0; margin-top: 2rem;">
+            {% block show_footer %}
+            <div class="text-center py-3" style="background: var(--foreground-color); color: var(--text-color);">
+                &copy; 2024 N8AI. Built with Django and OpenAI.
+            </div>
+            {% endblock %}
+        </footer>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery (for AJAX) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+    <script>
+      // Removed dark mode toggle script
+    </script>
+</body>
+</html> 

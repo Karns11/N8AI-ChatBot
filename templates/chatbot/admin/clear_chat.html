@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Clear Chat{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4><i class="fas fa-eraser"></i> Clear Chat Messages</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-warning"></i> Warning</h5>
+                        <p>You are about to clear all messages from the chat session "<strong>{{ chat_session.title }}</strong>" 
+                           belonging to user <strong>{{ chat_session.user.username }}</strong>.</p>
+                        <p>This action will:</p>
+                        <ul>
+                            <li>Permanently delete all messages in this chat</li>
+                            <li>Keep the chat session itself intact</li>
+                            <li>Remove all conversation history</li>
+                        </ul>
+                        <p><strong>This action cannot be undone!</strong></p>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6>Chat Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>ID:</strong> {{ chat_session.id }}</p>
+                                    <p><strong>Title:</strong> {{ chat_session.title }}</p>
+                                    <p><strong>User:</strong> {{ chat_session.user.username }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Created:</strong> {{ chat_session.created_at|date:"M j, Y H:i" }}</p>
+                                    <p><strong>Messages:</strong> {{ chat_session.messages.count }}</p>
+                                    <p><strong>Status:</strong> 
+                                        {% if chat_session.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Deleted</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if chat_session.messages.count > 0 %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6>Messages to be deleted ({{ chat_session.messages.count }})</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chat-messages" style="max-height: 300px; overflow-y: auto;">
+                                    {% for message in chat_session.messages.all|slice:":5" %}
+                                        <div class="message mb-2 {% if message.role == 'user' %}text-end{% endif %}">
+                                            <div class="d-flex {% if message.role == 'user' %}justify-content-end{% endif %}">
+                                                <div class="message-content" style="max-width: 70%;">
+                                                    <div class="card {% if message.role == 'user' %}bg-primary text-white{% else %}bg-light{% endif %}">
+                                                        <div class="card-body p-2">
+                                                            <small class="{% if message.role == 'user' %}text-white-50{% else %}text-muted{% endif %}">
+                                                                <i class="fas fa-{% if message.role == 'user' %}user{% else %}robot{% endif %}"></i>
+                                                                {{ message.role|title }} - {{ message.created_at|date:"M j, H:i" }}
+                                                            </small>
+                                                            <div class="mt-1">
+                                                                {{ message.content|truncatechars:100 }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    {% if chat_session.messages.count > 5 %}
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-ellipsis-h"></i> ... and {{ chat_session.messages.count|add:"-5" }} more messages
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'chatbot:admin_chat_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning" 
+                                    {% if chat_session.messages.count == 0 %}disabled{% endif %}>
+                                <i class="fas fa-eraser"></i> Clear All Messages
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message-content .card {
+    border-radius: 10px;
+}
+
+.message-content .card.bg-primary {
+    border: none;
+}
+
+.message-content .card.bg-light {
+    border: 1px solid #dee2e6;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+{% endblock %} 

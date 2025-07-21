@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}My Chats - N8AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-chat-dots"></i> My Chats
+                </h1>
+                <a href="{% url 'chatbot:new_chat' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> New Chat
+                </a>
+            </div>
+
+            {% if chat_sessions %}
+            <div class="row">
+                {% for chat in chat_sessions %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-chat"></i> {{ chat.title }}
+                                </h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{% url 'chatbot:chat_detail' chat.id %}">
+                                            <i class="bi bi-eye"></i> Open
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{% url 'chatbot:rename_chat' chat.id %}">
+                                            <i class="bi bi-pencil"></i> Rename
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{% url 'chatbot:clear_chat' chat.id %}">
+                                            <i class="bi bi-trash"></i> Clear
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="{% url 'chatbot:delete_chat' chat.id %}">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <p class="card-text small" style="color: var(--text-color);">
+                                <i class="bi bi-calendar"></i> {{ chat.created_at|date:"M j, Y" }}
+                                {% if chat.updated_at != chat.created_at %}
+                                <br><i class="bi bi-clock"></i> Updated {{ chat.updated_at|date:"M j, Y" }}
+                                {% endif %}
+                            </p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-message"></i> {{ chat.get_message_count }} messages
+                                </span>
+                                <a href="{% url 'chatbot:chat_detail' chat.id %}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-arrow-right"></i> Continue
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-chat-dots" style="font-size: 4rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 style="color: var(--text-color);">No chats yet</h3>
+                <p style="color: var(--text-color);">Start your first conversation to explore your data with natural language.</p>
+                <a href="{% url 'chatbot:new_chat' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i> Start Your First Chat
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

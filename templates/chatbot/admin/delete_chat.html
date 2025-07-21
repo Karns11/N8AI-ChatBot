@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Delete Chat{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Delete Chat Session</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-warning"></i> Warning</h5>
+                        <p>You are about to delete the chat session "<strong>{{ chat_session.title }}</strong>" 
+                           belonging to user <strong>{{ chat_session.user.username }}</strong>.</p>
+                        <p>This action will:</p>
+                        <ul>
+                            <li>Mark the chat as inactive (soft delete)</li>
+                            <li>Preserve all messages for audit purposes</li>
+                            <li>Remove the chat from the active chat list</li>
+                        </ul>
+                        <p><strong>This action cannot be undone!</strong></p>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6>Chat Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>ID:</strong> {{ chat_session.id }}</p>
+                                    <p><strong>Title:</strong> {{ chat_session.title }}</p>
+                                    <p><strong>User:</strong> {{ chat_session.user.username }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Created:</strong> {{ chat_session.created_at|date:"M j, Y H:i" }}</p>
+                                    <p><strong>Messages:</strong> {{ chat_session.messages.count }}</p>
+                                    <p><strong>Status:</strong> 
+                                        {% if chat_session.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Already Deleted</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'chatbot:admin_chat_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger" 
+                                    {% if not chat_session.is_active %}disabled{% endif %}>
+                                <i class="fas fa-trash"></i> Delete Chat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

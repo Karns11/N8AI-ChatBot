@@ -1,0 +1,77 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django stuff:
+*.log
+logs/
+db.sqlite3
+warehouse.sqlite3
+
+# Pytest
+.cache/
+
+# Environments
+.env
+.env.*
+*.env
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# PyCharm
+.idea/
+
+# Test artifacts
+*.cover
+coverage.xml
+htmlcov/
+
+# Misc
+*.bak
+*.swp
+
+# Ignore management command output
+*.out
+
+# Ignore pip wheel cache
+debug.log
+pip-wheel-metadata/
+
+# Ignore compiled files
+*.pyo
+
+# Ignore migrations cache (not migrations themselves)
+*.pyc
+
+# Ignore example env file
+!env.example 

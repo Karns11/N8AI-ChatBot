@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Chat - N8AI{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4 text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Chat
+                    </h3>
+                    
+                    <div class="alert alert-warning">
+                        <h5 class="alert-heading">Are you sure?</h5>
+                        <p>You are about to delete the chat "<strong>{{ chat_session.title }}</strong>".</p>
+                        <hr>
+                        <p class="mb-0">
+                            <strong>This action cannot be undone.</strong> All messages and query history will be permanently removed.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Chat Details:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-calendar"></i> Created: {{ chat_session.created_at|date:"M j, Y" }}</li>
+                            <li><i class="bi bi-message"></i> Messages: {{ chat_session.get_message_count }}</li>
+                            <li><i class="bi bi-clock"></i> Last updated: {{ chat_session.updated_at|date:"M j, Y" }}</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-trash"></i> Yes, Delete This Chat
+                            </button>
+                            <a href="{% url 'chatbot:chat_detail' chat_session.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

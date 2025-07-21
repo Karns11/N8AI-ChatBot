@@ -1,0 +1,58 @@
+<div class="message-content">
+    {{ message.content }}
+    
+    {% if message.sql_query %}
+    <div class="sql-display mt-2">
+        <strong>Generated SQL:</strong><br>
+        {{ message.sql_query }}
+    </div>
+    {% endif %}
+    
+    {% if message.query_results %}
+    <div class="results-container">
+        {% with results=message.get_formatted_results %}
+        {% if results and results.data %}
+        <div class="scrollable-table-wrapper">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        {% for column in results.columns %}
+                        <th>{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in results.data %}
+                    <tr>
+                        {% for value in row.values %}
+                        <td>{{ value|default:"-" }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if results.truncated %}
+        <div class="text-muted small mt-2">
+            Showing {{ results.display_count }} of {{ results.row_count }} results
+        </div>
+        {% endif %}
+        {% endif %}
+        {% endwith %}
+    </div>
+    {% endif %}
+    {% if message.summary %}
+    <div class="result-summary mt-3" style="color:#a3e635;font-size:1.05em;">{{ message.summary }}</div>
+    {% endif %}
+    {% if message.error_message %}
+    <div class="error-display mt-2">
+        <strong>Error:</strong> {{ message.error_message }}
+        {% if message.sql_query %}
+        <div class="mt-2"><strong>Generated SQL:</strong><br><code style="white-space: pre-line;">{{ message.sql_query }}</code></div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+<div class="message-time">
+    {{ message.created_at|date:"g:i A" }}
+</div> 

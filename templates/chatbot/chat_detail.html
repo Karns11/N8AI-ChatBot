@@ -1,0 +1,598 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ chat_session.title }} - N8AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-layout {
+        height: 100vh;
+        display: flex;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .chat-sidebar {
+        width: 300px;
+        background-color: var(--foreground-color);
+        border-right: 1px solid var(--border-color);
+        overflow-y: auto;
+        border-top: none !important;
+        flex-shrink: 0;
+    }
+    
+    .chat-main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    .chat-header {
+        padding: 1rem;
+        border-bottom: 1px solid #000; /* much darker border */
+        background-color: var(--foreground-color);
+        color: var(--text-color);
+    }
+    
+    .chat-messages {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: var(--background-color);
+    }
+    
+    .chat-input {
+        padding: 1rem;
+        background-color: var(--foreground-color);
+        border-top: 1px solid var(--border-color);
+        flex-shrink: 0;
+        position: relative;
+    }
+    
+    .message {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        max-width: 60%;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.user {
+        background-color: var(--primary-color);
+        color: #fff;
+        margin-left: auto;
+        width: fit-content;
+        min-width: 42rem;
+    }
+    
+    .message-content {
+        display: inline-block;
+        padding: 1rem;
+        border-radius: 18px;
+        word-wrap: break-word;
+        user-select: text;
+    }
+    
+    .message.user .message-content {
+        background-color: var(--primary-color);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        display: inline-block;
+        user-select: text;
+        padding-right: 2.5rem;
+    }
+    
+    .message.assistant .message-content {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .message-time {
+        font-size: 0.85rem;
+        color: #fff;
+        opacity: 0.8;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        height: 1.5rem;
+    }
+    
+    .sql-display {
+        background-color: #23272f;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+    }
+    
+    .results-container {
+        margin-top: 1rem;
+    }
+    
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .results-table th {
+        background-color: var(--primary-color);
+        color: #fff;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    .results-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .results-table tr:hover {
+        background-color: var(--background-color);
+    }
+    
+    .error-display {
+        background-color: var(--danger-color);
+        color: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+    }
+    
+    .typing-indicator {
+        display: none;
+        padding: 1rem;
+        color: #64748b;
+    }
+    
+    .typing-indicator.show {
+        display: block;
+    }
+    
+    .chat-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .message-input {
+        border: 2px solid #e2e8f0;
+        border-radius: 25px;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.2s;
+    }
+    
+    .message-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .send-button {
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .chat-info {
+        font-size: 0.875rem;
+        color: var(--text-color);
+    }
+
+    .chat-sessions-list, .chat-item {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .chat-item {
+        border-bottom: 1px solid var(--border-color) !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+    }
+    .chat-sessions-list {
+        border: none !important;
+        box-shadow: none !important;
+        border-top: none !important;
+    }
+    .copy-btn {
+        opacity: 0.6;
+        font-size: 0.75rem;
+        background: #fff;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: opacity 0.2s, background 0.2s;
+        padding: 1px 8px;
+        margin-right: 0.25rem;
+        height: 1.5rem;
+        line-height: 1.1;
+    }
+    .copy-btn:hover {
+        opacity: 1;
+        background: #f1f1f1;
+    }
+    footer {
+        margin-top: 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-layout">
+    <!-- Sidebar -->
+    <div class="chat-sidebar">
+        <div class="p-3 border-bottom">
+            <h6 class="mb-2">
+                <i class="bi bi-chat"></i> Chat Sessions
+            </h6>
+            <a href="{% url 'chatbot:new_chat' %}" class="btn btn-primary btn-sm w-100">
+                <i class="bi bi-plus-circle"></i> New Chat
+            </a>
+        </div>
+        
+        <div class="chat-sessions-list">
+            {% for session in chat_sessions %}
+            <div class="chat-item p-3 border-bottom {% if session.id == chat_session.id %}active{% endif %}">
+                <a href="{% url 'chatbot:chat_detail' session.id %}" class="text-decoration-none">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-medium {% if session.id == chat_session.id %}text-white{% else %}text-secondary{% endif %}">
+                                {{ session.title }}
+                            </div>
+                            <small class="{% if session.id == chat_session.id %}text-white-50{% else %}text-secondary{% endif %}">
+                                {{ session.get_message_count }} messages
+                            </small>
+                        </div>
+                        <small class="{% if session.id == chat_session.id %}text-white-50{% else %}text-secondary{% endif %}">
+                            {{ session.updated_at|date:"M j" }}
+                        </small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">{{ chat_session.title }}</h5>
+                    <div class="chat-info">
+                        <i class="bi bi-calendar"></i> Created {{ chat_session.created_at|date:"M j, Y" }}
+                        {% if chat_session.updated_at != chat_session.created_at %}
+                        • <i class="bi bi-clock"></i> Updated {{ chat_session.updated_at|date:"M j, Y" }}
+                        {% endif %}
+                        • <i class="bi bi-message"></i> {{ chat_session.get_message_count }} messages
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <a href="{% url 'chatbot:rename_chat' chat_session.id %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-pencil"></i> Rename
+                    </a>
+                    <a href="{% url 'chatbot:clear_chat' chat_session.id %}" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-trash"></i> Clear
+                    </a>
+                    <a href="{% url 'chatbot:delete_chat' chat_session.id %}" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+            {% if chat_messages|length == 0 %}
+            <div class="d-flex justify-content-center align-items-center h-100 default-welcome-message" style="min-height: 300px;">
+                <div class="text-center" style="font-size: 1.2rem; color: #e2e8f0; font-weight: 500;">
+                    <i class="bi bi-robot" style="font-size: 2.5rem; color: #a3e635;"></i><br/>
+                    <span style="color: #fff; font-weight: 600;">Welcome!</span> Ask me anything about your data to get started.<br/>
+                    <span style="color: #cbd5e1;">I can help you analyze, summarize, and answer questions about your database.</span>
+                </div>
+            </div>
+            {% else %}
+                {% for message in chat_messages %}
+                <div class="message {{ message.role }}">
+                    <div class="message-content">
+                        {{ message.content }}
+                        {% if message.sql_query %}
+                        <div class="sql-display mt-2">
+                            <strong>Generated SQL:</strong><br>
+                            {{ message.sql_query }}
+                        </div>
+                        {% endif %}
+                        {% if message.query_results %}
+                        <div class="results-container">
+                            {% with results=message.get_formatted_results %}
+                            {% if results and results.data %}
+                            <div class="table-responsive">
+                                <table class="results-table">
+                                    <thead>
+                                        <tr>
+                                            {% for column in results.columns %}
+                                            <th>{{ column }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in results.data %}
+                                        <tr>
+                                            {% for value in row.values %}
+                                            <td>{{ value|default:"-" }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if results.truncated %}
+                            <div class="text-muted small mt-2">
+                                Showing {{ results.display_count }} of {{ results.row_count }} results
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        {% endif %}
+                        {% if message.error_message %}
+                        <div class="error-display mt-2">
+                            <strong>Error:</strong> {{ message.error_message }}
+                            {% if message.sql_query %}
+                            <div class="mt-2"><strong>Generated SQL:</strong><br><code style="white-space: pre-line;">{{ message.sql_query }}</code></div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center gap-2 justify-content-end" style="align-items: center; min-height: 1.5rem; margin-right: 0.75rem;">
+                        {% if message.role == 'user' %}
+                        <button class="btn btn-sm btn-light copy-btn" title="Copy" onclick="copyMessageText(this)">Copy</button>
+                        {% endif %}
+                        <div class="message-time">{{ message.created_at|date:"g:i A" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <!-- Input Area -->
+        <div class="chat-input">
+            <form id="messageForm" class="d-flex gap-2">
+                {% csrf_token %}
+                <input type="text" 
+                       id="messageInput" 
+                       class="form-control message-input" 
+                       placeholder="Ask a question about your data..."
+                       autocomplete="off">
+                <button type="submit" class="btn btn-primary send-button" id="sendButton">
+                    <i class="bi bi-send"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block show_footer %}{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    const chatMessages = $('#chatMessages');
+    const messageForm = $('#messageForm');
+    const messageInput = $('#messageInput');
+    const sendButton = $('#sendButton');
+
+    // Hide welcome message if any message is added
+    function hideWelcomeIfMessages() {
+        if ($('.message').length > 0) {
+            $('.default-welcome-message').remove();
+        }
+    }
+    hideWelcomeIfMessages();
+
+    // Auto-scroll to bottom
+    function scrollToBottom() {
+        chatMessages.scrollTop(chatMessages[0].scrollHeight);
+    }
+
+    // Scroll to bottom on page load
+    scrollToBottom();
+
+    // Handle form submission
+    messageForm.on('submit', function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.val().trim();
+        if (!message) return;
+        
+        // Disable input and button
+        messageInput.prop('disabled', true);
+        sendButton.prop('disabled', true);
+        
+        // Add user message to chat
+        addUserMessage(message);
+        
+        // Add temporary 'AI is thinking...' assistant message
+        addThinkingMessage();
+        
+        // Clear input
+        messageInput.val('');
+        
+        // Scroll to bottom
+        scrollToBottom();
+        
+        // Hide welcome message
+        hideWelcomeIfMessages();
+        
+        // Send message to server
+        $.ajax({
+            url: '{% url "chatbot:send_message" chat_session.id %}',
+            method: 'POST',
+            data: JSON.stringify({ message: message }),
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Replace the thinking message with the real response
+                    $('#thinking-message').replaceWith(`
+                        <div class="message assistant">
+                            ${response.message_html}
+                        </div>
+                    `);
+                    hideWelcomeIfMessages();
+                    // Update chat title if it's the first message
+                } else {
+                    // Replace with error message
+                    $('#thinking-message').replaceWith(`
+                        <div class="message assistant">
+                            <div class="message-content">
+                                <div class="error-display">
+                                    <strong>Error:</strong> ${escapeHtml(response.error || 'An error occurred')}
+                                </div>
+                            </div>
+                            <div class="message-time">${new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}</div>
+                        </div>
+                    `);
+                }
+            },
+            error: function() {
+                $('#thinking-message').replaceWith(`
+                    <div class="message assistant">
+                        <div class="message-content">
+                            <div class="error-display">
+                                <strong>Error:</strong> Failed to send message. Please try again.
+                            </div>
+                        </div>
+                        <div class="message-time">${new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}</div>
+                    </div>
+                `);
+            },
+            complete: function() {
+                // Re-enable input and button
+                messageInput.prop('disabled', false);
+                sendButton.prop('disabled', false);
+                // Focus input
+                messageInput.focus();
+                // Scroll to bottom
+                scrollToBottom();
+                hideWelcomeIfMessages();
+            }
+        });
+    });
+    
+    // Add user message to chat
+    function addUserMessage(content) {
+        const time = new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+        const messageHtml = `
+            <div class="message user">
+                <div class="message-content">${escapeHtml(content)}</div>
+                <div class="d-flex align-items-center gap-2 justify-content-end" style="align-items: center; min-height: 1.5rem; margin-right: 0.75rem;">
+                    <button class="btn btn-sm btn-light copy-btn" title="Copy" onclick="copyMessageText(this)">Copy</button>
+                    <div class="message-time">${time}</div>
+                </div>
+            </div>
+        `;
+        chatMessages.append(messageHtml);
+        hideWelcomeIfMessages();
+    }
+    
+    // Add assistant message to chat
+    function addAssistantMessage(html) {
+        const messageHtml = `
+            <div class="message assistant">
+                ${html}
+            </div>
+        `;
+        chatMessages.append(messageHtml);
+        hideWelcomeIfMessages();
+    }
+    
+    // Add error message to chat
+    function addErrorMessage(error) {
+        const messageHtml = `
+            <div class="message assistant">
+                <div class="message-content">
+                    <div class="error-display">
+                        <strong>Error:</strong> ${escapeHtml(error)}
+                    </div>
+                </div>
+                <div class="message-time">${new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}</div>
+            </div>
+        `;
+        chatMessages.append(messageHtml);
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Add temporary 'AI is thinking...' assistant message
+    function addThinkingMessage() {
+        $('#thinking-message').remove();
+        const thinkingHtml = `
+            <div class="message assistant" id="thinking-message">
+                <div class="message-content"><em>AI is thinking...</em></div>
+            </div>
+        `;
+        chatMessages.append(thinkingHtml);
+        scrollToBottom();
+    }
+    
+    // Handle Enter key
+    messageInput.on('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            messageForm.submit();
+        }
+    });
+    
+    // Focus input on page load
+    messageInput.focus();
+});
+
+function copyMessageText(btn) {
+    const messageContent = btn.parentElement.parentElement.querySelector('.message-content');
+    // Exclude the button itself from the text
+    let text = '';
+    for (const node of messageContent.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            text += node.textContent;
+        } else if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('copy-btn')) {
+            text += node.textContent;
+        }
+    }
+    navigator.clipboard.writeText(text.trim());
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => {
+        btn.textContent = original;
+    }, 1500);
+}
+</script>
+{% endblock %} 
