@@ -310,6 +310,7 @@ tables:
     description: >
       Fact table containing player-level offensive statistics for MLB games and seasons.
       Includes batting performance metrics, derived statistics, and season-level aggregations. THIS CONTAINS ONLY THE ACCUMULATIONS FOR THE MOST RECENT DATE IN THE DATA WAREHOUSE. NO HISTORY IN THIS TABLE.
+      IMPORTANT: This table contains all offensive stats such as home runs, singles, doubles, triples, RBIs, walks, strikeouts, etc. If you need to calculate team-level totals for these stats, you must aggregate from this table (or fact_player_stats_history for non-current dates). DO NOT use fact_team_games for these stats.
 
     columns:
       - name: player_sk
@@ -317,7 +318,7 @@ tables:
         description: "Surrogate key referencing the player in dim_player."
       - name: team_sk
         type: integer
-        description: "Surrogate key referencing the team in dim_team."
+        description: "Surrogate key referencing the team in dim_team. This removes the need to join to player dim to get team information."
       - name: num_g
         type: bigint
         description: "Total games played by the player."
@@ -395,6 +396,7 @@ tables:
     description: >
       Historical fact table containing player-level offensive statistics for MLB games and seasons.
       Includes batting performance metrics, derived statistics, and season-level aggregations for all dates in the data warehouse.
+      IMPORTANT: This table contains all offensive stats such as home runs, singles, doubles, triples, RBIs, walks, strikeouts, etc. If you need to calculate team-level totals for these stats for a specific date in the past, you must aggregate from this table. DO NOT use fact_team_games or fact_team_games_history for these stats.
 
     columns:
       - name: player_sk
@@ -402,7 +404,7 @@ tables:
         description: "Surrogate key referencing the player in dim_player."
       - name: team_sk
         type: integer
-        description: "Surrogate key referencing the team in dim_team."
+        description: "Surrogate key referencing the team in dim_team. This removes the need to join to player dim to get team information."
       - name: num_g
         type: bigint
         description: "Total games played by the player."
@@ -480,6 +482,7 @@ tables:
     description: >
       Fact table containing team-level game statistics for MLB seasons.
       Includes games played and season-level aggregations for each team.
+      WARNING: This table does NOT contain any offensive stats such as home runs, singles, doubles, triples, RBIs, walks, strikeouts, etc. It only contains games played (gp) and related team-level game counts. NEVER use this table to answer questions about home runs, singles, doubles, or other offensive stats. Use fact_player_stats or fact_player_stats_history instead.
 
     columns:
       - name: team_sk

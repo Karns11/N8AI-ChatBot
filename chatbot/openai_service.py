@@ -93,7 +93,10 @@ class OpenAIService:
             9. For follow-up questions, use context from previous queries to make specific queries
             10. When referring to "that player" or similar, use the specific player information from chat history
             11. IMPORTANT: The current year is {current_year}. When users say "this year", "current year", "now", etc., use {current_year} in your queries
-            12. Return ONLY the SQL query, no explanations or markdown formatting
+            12. If the user asks for stats on a specific date that is not current, then the warehouse.fact_player_stats_history table must be used as the fact table to get the stats
+            13. If the user asks for stats at the team level, NEVER join the fact table to the player dimension for any reason. Only join the fact table directly to the team dimension using the team_sk key. Joining to the player dimension for team-level stats is strictly prohibited and always incorrect.
+            14. DO NOT use warehouse.fact_team_games for stats like home runs, singles, doubles, etc. These stats are only available in warehouse.fact_player_stats (or warehouse.fact_player_stats_history for non-current dates). The fact_team_games table does NOT contain columns like num_hr. For example, do NOT generate queries like: SELECT ... SUM(fact_team_games.num_hr) ...
+            15. Return ONLY the SQL query, no explanations or markdown formatting
 
             The user will provide:
             - A natural language query
