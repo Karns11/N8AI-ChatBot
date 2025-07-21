@@ -152,8 +152,3 @@ DATABASES = {
 }
 ```
 
----
-
-## License
-
-MIT
